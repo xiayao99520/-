@@ -1,0 +1,6 @@
+interface:
+  display_name: "即梦拼贴 B-roll（审计版）"
+  short_description: "口播→Codex 四图→即梦视频提示词"
+  default_prompt: "Use $gbro-jimeng-collage-broll-audited to 把这段中文口播做成半调纸拼贴素材包：先确认视觉隐喻，再用 Codex 生成四张 9:16 参考图，图片确认后只输出可复制给即梦的视频提示词。不要调用 Gemini 或任何视频 API。"
+policy:
+  allow_implicit_invocation: true
