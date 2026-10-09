@@ -1,0 +1,1 @@
+v3 contract: each frames[n].prompt is a complete independent image-generation prompt. The renderer preserves it verbatim and adds one final LF; it does not copy another frame's objects, coordinates, or result.

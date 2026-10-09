@@ -1,0 +1,26 @@
+{
+  "ticket": {
+    "01-建立场景.txt": "7d843ddbb0c525005427647d6f51d8b2466845acda118a90a004940d16e81d74",
+    "02-关键对象.txt": "b7b85da34618ebf7e1f6885e130e375fe52059c705867f8dbc0b7c8c96399d6c",
+    "03-动作关系.txt": "4e4d47f1fa7d39fb20a1fa63e42b7e873766f34f4454c0970cdec09c6a089dfd",
+    "04-结果冲突.txt": "ca205f4bd50d4be0b617382dd7176e59099ab4f22d6650eab6be6b1bd3af6475"
+  },
+  "wechat": {
+    "01-建立场景.txt": "55ccdcb4f93144e05865e86b1d535a7bd2bbe6ac409baacaa56a5bffe1a86975",
+    "02-关键对象.txt": "ade43cc2f990be7c27270103c9bf8ce18698687cd6bc201b5dbc4d75c4eaba2b",
+    "03-动作关系.txt": "98eaba79cd8f29afb8d1cf8b4e6bd37bf9fd1c2afe13b3918cefd8aa827a1639",
+    "04-结果冲突.txt": "7544adfbaebdcff9eb1802c872bd12d08cbb9f6b588561fd4001b255d02260ad"
+  },
+  "starch": {
+    "01-建立场景.txt": "b6401e5a0aa5e771b262967f3b32e97a593597f081663ab65c1b300901aafe84",
+    "02-关键对象.txt": "7d78715306c21e4de9e525e79430a7a9835ea0b782db6291c37606f8ce0f62e7",
+    "03-动作关系.txt": "d9ea9d9851011c4a6188a165a1b0de7ed169bb3506b8f18aa3f8038387c176aa",
+    "04-结果冲突.txt": "17facd35d4544703d1aaea8ff0680707771ecf4f92f23de10797dabd8b17654b"
+  },
+  "delivery": {
+    "01-建立场景.txt": "4373546ec25afbaa1f3ea3c0280920509688725fe79a7371760b7430e9b05bbf",
+    "02-关键对象.txt": "5c81bc47407ff4b692ca98158eb125834d10f0a719bb2597efb04d2e945e5fd7",
+    "03-动作关系.txt": "e7b037e2c8270d4eb2cf89be11fb4123744df7eba196fdc24c4868d9a30d1ae0",
+    "04-结果冲突.txt": "3624305277ea66f64cbf3a79523b7d9456a4e6de3f44e4c5abbc38cc8e8ed0d2"
+  }
+}

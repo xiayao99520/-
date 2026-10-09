@@ -1,0 +1,6 @@
+interface:
+  display_name: "Claude 新闻拼贴分镜"
+  short_description: "一段口播 → 四张按口播顺序的纸拼贴图 + 原 video_prompt() 即梦提示词，全自动"
+  default_prompt: "Use $claude-news-collage 把这一段中文新闻口播自动做成半调纸拼贴素材：按 SKILL.md 骨架一次写好 schema 3 image-plan.json（四条按口播顺序的生图 Prompt，每张一个中文关键标签，顶部铺满但不放关键信息），运行 run.py start，同一批发出四个 image_gen，再运行 run.py finish 输出四张图片与 05-即梦视频提示词.txt。不请求确认，不做 AI 自查，不改写 video_prompt() 的输出，不调用视频 API。"
+policy:
+  allow_implicit_invocation: true

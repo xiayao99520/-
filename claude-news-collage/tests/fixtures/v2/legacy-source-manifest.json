@@ -1,0 +1,50 @@
+{
+  "ticket": {
+    "source_directory": "C:\\Users\\Administrator\\hyperframes-projects\\collage-broll\\2026-09-29-票务平台特殊商品退票",
+    "files": {
+      "01-隐喻方案-待确认.txt": "6ef084b7e07c06cfe999f31cc9dcabbfeb59f1463e600fb72a38a6bb1dec5c57",
+      "visual-spec.json": "92099d3f25e2d6fca2340f1c57dfa7f892837b0f51856d4e1f892cf2cadf003b",
+      "04-即梦视频提示词.txt": "e59939a060fc91d21a548d1d24420cee34beb3971b058763b7656569895cfdda",
+      "02-四张图片提示词\\01-建立场景.txt": "95011400de65d3257efa06398134517d7fd738e8d5babb9e34375494de2143d1",
+      "02-四张图片提示词\\02-关键对象.txt": "8f5cb6e6b41d85a3e8e87e0e2a05575233c3aaf2943a5ccac911ab383facd9b4",
+      "02-四张图片提示词\\03-动作关系.txt": "68598f614befd67da425638a4fc14fd9498d24817a5486f666aeccac75a1ccc5",
+      "02-四张图片提示词\\04-结果冲突.txt": "859040b756ce80db720bdbdc2b3cff006109e210adc1c5e6234d1f52e415aa70"
+    }
+  },
+  "wechat": {
+    "source_directory": "C:\\Users\\Administrator\\hyperframes-projects\\collage-broll\\2026-09-29-微信异地登录资金安全",
+    "files": {
+      "01-隐喻方案-待确认.txt": "4fc92002edd382762a3e7a1e00763951b94e41540f43c46328f4a06fb2df4dcd",
+      "visual-spec.json": "96cf31cafef39744fb09432ee47933d5832a96b80d46c5231d714f27c597b7db",
+      "04-即梦视频提示词.txt": "5f247100c3636b278626efa824fae6c9f181c88e87695164304de716ede64daf",
+      "02-四张图片提示词\\01-建立场景.txt": "1b3ec3e8e46bd1c3f52c00eecaee82b2dd00e87a84c09629c91fc7e728c55a06",
+      "02-四张图片提示词\\02-关键对象.txt": "05c1607eceef7719d076bdd9402b35e20bbf1326b8f0b9cc703666d30764dfca",
+      "02-四张图片提示词\\03-动作关系.txt": "af4ac2559726f68bd9817c8450fe252fa02e1366dabda7cc0b44a5b3751843ce",
+      "02-四张图片提示词\\04-结果冲突.txt": "49c408a71f661bed54b59b7d6a71a0fe915baf6d2123948fed40628d626c4387"
+    }
+  },
+  "starch": {
+    "source_directory": "C:\\Users\\Administrator\\hyperframes-projects\\collage-broll\\2026-09-30-抗性淀粉研究发现",
+    "files": {
+      "01-隐喻方案-待确认.txt": "5cc1e19330f642ed14119c9ffd4764ec732dd30d49c71805a335cda3c320f8b9",
+      "visual-spec.json": "49cf62360aebb44bb38eb67196ec34998c48542bc0dd6bde0cdd0b0202eeb767",
+      "04-即梦视频提示词.txt": "41b7315eb4564517fdceb1dba2db0686d96d2d74a490ef37b340564ecd7e88b9",
+      "02-四张图片提示词\\01-建立场景.txt": "98cee51d28253901d5ade04cd0149ac512bc4db978658b9ea1a99fef35012b79",
+      "02-四张图片提示词\\02-关键对象.txt": "8fa84e2f8be8b5df5d8b83281140692c6dab90dbc4c1c30a4b4efc4c6c147ee9",
+      "02-四张图片提示词\\03-动作关系.txt": "112d5146432d8d8c26a9d3a2237775a1623764bbfd969d04838782650ba761c6",
+      "02-四张图片提示词\\04-结果冲突.txt": "f398d2e4cb140e9396b44061461f41c4d5ad0d33958012d33c7245dbad7f6b6f"
+    }
+  },
+  "delivery": {
+    "source_directory": "C:\\Users\\Administrator\\hyperframes-projects\\collage-broll\\2026-09-30-外卖封口异常拒送拒收",
+    "files": {
+      "01-隐喻方案-待确认.txt": "e034a275cc76149d71b9823f04954e23a680d56ed7c8da361fcd34e863039978",
+      "visual-spec.json": "0a8b90e8100125c155052965fc72d698d2fa27289abf834d2f01ee895821a059",
+      "04-即梦视频提示词.txt": "e411a812adde6485e2914de1276bdc646edbd48726fe63231b077e22b90d8e38",
+      "02-四张图片提示词\\01-建立场景.txt": "40674cee18ee6bbc7f7bbda469cedce46f332b53674f221180cc3fc60287fa9d",
+      "02-四张图片提示词\\02-关键对象.txt": "e223b375bad9f488c46ba26c1a86cbafe5bd816165073e155e7a93e6d56fadb8",
+      "02-四张图片提示词\\03-动作关系.txt": "c50f9db3d3be3518727e17e19a057c244ea354ec362a7a96af3d64e1a45122dd",
+      "02-四张图片提示词\\04-结果冲突.txt": "66ca82a1f16feb0523a2d40091864bc41fae4dd6fd27913c48a6aeae7917baf6"
+    }
+  }
+}
