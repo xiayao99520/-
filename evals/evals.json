@@ -1,28 +1,34 @@
 {
-  "skill_name": "gbro-collage-broll",
+  "skill_name": "claude-news-collage",
   "evals": [
     {
       "id": 1,
-      "prompt": "用 gbro-collage-broll 帮我把这句做成拼贴 B-roll：很多人以为 AI 是来替你思考的，其实它更像一面镜子，会把你问题里的漏洞照出来。",
-      "expected_output": "At Gate 1, should only propose one clear visual metaphor with key objects, palette and assembly order, then stop for approval. It must not generate an image or call any video model yet.",
+      "prompt": "用 claude-news-collage 帮我把这段做成拼贴 B-roll：票务平台也不能再随便拿票品属于特殊商品当借口拒绝退票。",
+      "expected_output": "Runs check_setup.py (includes original access_control --check), writes a schema 3 image-plan.json (four complete independent frame prompts with the original markers, each naming its verbatim voiceover words in spoken order and at least one Chinese label; plus single-line speech/scene/objects/action/result/palette and duration_seconds), runs check_plan_rules.py, original prepare_package.py and load_image_prompts.py, issues four image_gen calls in one batch, copies images to 03-图片 as 01–04, runs make_package.py --video-only and export_delivery.py, and reports the delivery folder. No confirmation stop, no visual QA, no video API.",
       "files": []
     },
     {
       "id": 2,
-      "prompt": "上一轮你给的‘知识卡片通过轨道重新连成网络’隐喻我确认了。继续帮我做静帧，底色不要全是蓝色，素材可以有彩色纸片。",
-      "expected_output": "At Gate 2, should use Codex image_gen to create four numbered 9:16 editorial halftone paper-collage images and stop for user approval. It must not call any video model.",
+      "prompt": "提示词能不能帮我润色一下，写得更有镜头感？",
+      "expected_output": "Explains that 05-即梦视频提示词.txt must stay exactly the original video_prompt() return value and is not rewritten; offers to change the plan's scene/objects/action/result/palette/duration inputs instead, then reruns make_package.py --video-only and export_delivery.py.",
       "files": []
     },
     {
       "id": 3,
-      "prompt": "这些彩色拼贴静帧全部通过，帮我继续生成视频。",
-      "expected_output": "At Gate 3, should write a copy-ready 5s 9:16 Jimeng video prompt that uses the four approved images in order. It must not call Gemini, Veo, or any video API.",
+      "prompt": "（当前环境没有 image_gen）票务平台也不能再随便拿票品属于特殊商品当借口拒绝退票。",
+      "expected_output": "Builds the internal package (plan, four prompts, 05 prompt) but stops before export_delivery because images 01–04 are missing, and says so plainly. Never uses placeholders.",
       "files": []
     },
     {
       "id": 4,
-      "prompt": "这五条里 1、2、4 的隐喻通过，3 和 5 我还想改。先继续下一步。",
-      "expected_output": "Should advance only items 1, 2 and 4 to still generation while keeping items 3 and 5 at the metaphor revision gate. It must not generate video for any item.",
+      "prompt": "1. 票务平台不能拒绝退票。2. 某地出台新的电动车管理办法。帮我都做成拼贴 B-roll。",
+      "expected_output": "Handles only the first segment and asks the user to run the second separately.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "图片3 的手太小了，重做这一张。",
+      "expected_output": "Edits only frames[3].prompt in image-plan.json, runs render_image_prompts.py and load_image_prompts.py, regenerates only image 03, replaces it in 03-图片 and reruns export_delivery.py (new numbered delivery folder). The video prompt is unchanged.",
       "files": []
     }
   ]

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Create a Jimeng-ready collage B-roll package from an approved visual plan."""
+"""Create a Jimeng-ready collage B-roll package from a prepared visual plan."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 import re
 from datetime import date
@@ -48,9 +49,9 @@ def image_prompt(role: str, scene: str, objects: str, action: str, result: str, 
     )
 
 
-def video_prompt(speech: str, scene: str, objects: str, action: str, result: str, palette: str) -> str:
+def video_prompt(speech: str, scene: str, objects: str, action: str, result: str, palette: str, duration: float = 5) -> str:
     return (
-        "请使用我上传的 4 张参考图，严格按 1→2→3→4 的顺序，把它们做成一条约 5 秒的竖屏半调纸拼贴组装动画。\n\n"
+        f"请使用我上传的 4 张参考图，严格按 1→2→3→4 的顺序，把它们做成一条约 {duration:g} 秒的竖屏半调纸拼贴组装动画。\n\n"
         f"对应口播：{speech}\n"
         f"视觉隐喻：{scene}；关键对象：{objects}；动作关系：{action}；最终结果：{result}。\n\n"
         "动画顺序：先以第 1 张图的场景为基础，从平坦纸面开始；再让第 2 张图中的关键对象从画外滑入并卡位；"
@@ -67,6 +68,12 @@ def video_prompt(speech: str, scene: str, objects: str, action: str, result: str
 def make(args: argparse.Namespace) -> Path:
     root = Path(args.output).expanduser().resolve()
     project = root / f"{args.date or date.today().isoformat()}-{clean_name(args.title or args.speech[:20])}"
+    if args.video_only:
+        if not project.is_dir():
+            raise FileNotFoundError(f"Existing package directory required: {project}")
+        write(project / "05-即梦视频提示词.txt", video_prompt(args.speech, args.scene, args.objects, args.action, args.result, args.palette, args.duration))
+        return project
+
     prompts = project / "02-四张图片提示词"
     images = project / "03-图片"
     prompts.mkdir(parents=True, exist_ok=False)
@@ -79,33 +86,44 @@ def make(args: argparse.Namespace) -> Path:
     write(images / "README.txt", "Codex 生图会把四张最终 PNG/JPG 保存到这里；生成完成后按 01、02、03、04 编号，再拖入即梦参考图区域。")
 
     write(project / "00-使用说明.txt", "\n".join([
-        "1. 先阅读 01-隐喻方案-待确认.txt，确认后由 Codex 按 02-四张图片提示词生成四张图。",
-        "2. 检查 03-图片 里的四张 Codex 图片，再将它们按 1→2→3→4 拖入即梦视频的参考图区域。",
-        "3. 复制 04-即梦视频提示词.txt 到即梦，生成约 5 秒、9:16 的组装动画。",
+        "1. 内部方案写入 01-隐喻方案-待确认.txt；随后先写完四份实际生图提示词，再同批生成四张图。历史文件名中的“待确认”不要求用户回复确认。",
+        "2. 四张 Codex 图片按 1→2→3→4 保存到内部 03-图片；最终从独立交付目录取图，无需逐张目视验图。",
+        f"3. 从独立交付目录复制 05-即梦视频提示词.txt 到即梦，生成约 {args.duration:g} 秒、9:16 的组装动画。",
         "4. 把视频放到剪映对应口播下方；顶部标题可覆盖安全区，关键对象和结果已安排在中部。",
     ]))
     write(project / "01-隐喻方案-待确认.txt", "\n".join([
         f"口播：{args.speech}", f"核心场景：{args.scene}", f"关键对象：{args.objects}",
         f"动作关系：{args.action}", f"结果冲突：{args.result}", f"色彩建议：{args.palette}",
         "组装顺序：建立场景 → 关键对象 → 动作关系 → 结果冲突。",
-        "确认 Gate 1 后，再进入四张图片提示词。",
+        "内部方案记录完成后，直接写完四张图片提示词并进入生图，不等待用户确认。",
     ]))
-    write(project / "04-即梦视频提示词.txt", video_prompt(args.speech, args.scene, args.objects, args.action, args.result, args.palette))
-    write(project / "05-剪映使用说明.txt", "\n".join([
-        "画幅：9:16；建议时长：约 5 秒；用途：垫在对应口播下方。",
+    write(project / "05-即梦视频提示词.txt", video_prompt(args.speech, args.scene, args.objects, args.action, args.result, args.palette, args.duration))
+    write(project / "06-剪映使用说明.txt", "\n".join([
+        f"画幅：9:16；建议时长：约 {args.duration:g} 秒；用途：垫在对应口播下方。",
         "把即梦生成的视频放在这句口播对应的时间线上。视频默认不承担旁白和字幕。",
         "新闻标题可以覆盖画面顶部安全区；不要遮挡画面中部的关键对象、动作和结果。",
     ]))
     spec = {
         "speech": args.speech, "title": args.title or clean_name(args.speech[:20]),
-        "aspect_ratio": "9:16", "duration_seconds": 5, "language": "zh-CN",
+        "aspect_ratio": "9:16", "duration_seconds": args.duration, "language": "zh-CN",
         "style": "halftone-paper-collage", "top_title_safe_area": True,
         "composition": "full_frame_with_center_core", "image_count": 4,
         "roles": [r for _, r in roles], "palette": args.palette,
-        "status": "gate1-package-created",
+        "status": "plan-created",
     }
     (project / "visual-spec.json").write_text(json.dumps(spec, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return project
+
+
+def require_local_access() -> None:
+    from access_control import ControlError, is_enabled
+
+    try:
+        enabled = is_enabled()
+    except ControlError as exc:
+        raise PermissionError(str(exc)) from exc
+    if not enabled:
+        raise PermissionError("本地控制已停用，未建立素材包")
 
 
 def main() -> int:
@@ -119,8 +137,16 @@ def main() -> int:
     p.add_argument("--palette", default="根据语义选择一组强烈平面色场，搭配奶油白、黑白和一到两种彩色纸片")
     p.add_argument("--output", default="~/hyperframes-projects/collage-broll")
     p.add_argument("--date", help="override date, YYYY-MM-DD")
+    p.add_argument("--duration", type=float, default=5, help="video duration in seconds (default: 5)")
+    p.add_argument("--video-only", action="store_true", help="update only the video prompt in an existing package")
     args = p.parse_args()
-    project = make(args)
+    if not math.isfinite(args.duration) or args.duration <= 0:
+        p.error("--duration must be a positive finite number")
+    try:
+        require_local_access()
+        project = make(args)
+    except (FileNotFoundError, PermissionError) as exc:
+        p.error(str(exc))
     print(project)
     return 0
 

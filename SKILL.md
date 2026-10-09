@@ -1,132 +1,131 @@
 ---
-name: gbro-jimeng-collage-broll-audited
-description: 按旧聊天实际流程将中文口播拆成四张语义侧重点不同的半调纸拼贴画面，逐张独立使用 Codex 生图，再交付即梦视频提示词。保留三道 Gate；不把四图做成同一场景的小幅连续编辑。
-compatibility: 在 Codex 环境运行；默认 9:16、约 5 秒、中文提示词、四张参考图。
+name: claude-news-collage
+description: 把「一段」中文新闻口播自动做成半调纸拼贴 B-roll 素材：按口播原文顺序设计四张独立画面（每张至少一个中文关键标签）→ 写成 schema 3 image-plan（四条完整生图 Prompt + speech/scene/objects/action/result/palette/duration_seconds）→ 四路同批 Codex image_gen → 由原项目 xy-to-make 的 video_prompt() 原样生成 05-即梦视频提示词.txt → 导出四张图片 + 一份提示词的未压缩交付文件夹。全程自动，不请求人工确认，不做生成后的 AI 自查。用户说“collage b-roll”“纸拼贴 b-roll”“半调拼贴”“拼贴风格配画面”“新闻口播拼贴分镜”“即梦拼贴提示词”“claude-news-collage”，或希望把一段口播转成拼贴参考图和即梦提示词时，必须使用此 skill。每次只处理一段口播；不调用任何视频 API。
+compatibility: 在 Codex 环境运行（依赖内置 image_gen）。需要 Python >= 3.9；Pillow 仅用于可选的内部四图预览。不需要 GEMINI_API_KEY、ffmpeg 或任何视频 API。
 ---
 
-# gbro Collage B-roll：即梦半自动版
+# Claude 新闻拼贴分镜
 
-把一段约 5 秒中文口播变成一个可直接交给即梦的素材包。系统负责视觉方案、四张独立生图提示词、Codex 生图、即梦视频提示词和剪映说明；用户只把图片和视频提示词交给即梦。使用用户指定时长，未指定约 5 秒。
+> 由 Claude（Anthropic）制作。即梦视频提示词机制完整迁移自 [xiayao99520/Repository-name-xy-to-make](https://github.com/xiayao99520/Repository-name-xy-to-make)（提交 `52351a7`，MIT）；视觉风格源自 [pyang5166/gbro-collage-broll](https://github.com/pyang5166/gbro-collage-broll)（MIT）。
 
-
-## 执行依据
-
-本版恢复用户指定的《部署 vox-director 项目》聊天（01a0eb0f-a6f9-7182-9947-ee05c01e534a）实际使用的半自动流程。已从原始日志还原当时 SKILL 的写入和 Codex 生图补丁，并核对票务、微信、外卖和同题抗性淀粉案例。核对材料在 [references/execution-audit.md](references/execution-audit.md) 与 [references/execution-evidence.json](references/execution-evidence.json)。
-
-优先复现旧聊天的实际四图设计和工具调用；不能用 GitHub 原版的一张完成静帧／单隐喻组装方案覆盖已运行的四图流程，也不能把后来失败的研究面板当标准。历史 prompt 用于审计和同题复验，不作为以后替换名词的模板。
-
-## 三道确认门
-
-1. **Gate 1：隐喻确认**：只输出核心意思、场景、关键对象、动作关系、结果冲突、色彩和组装顺序，等待确认。
-2. **Gate 2：静帧确认**：Gate 1 确认后使用 Codex 内置 `image_gen`，按四张提示词生成四张最终 PNG/JPG，保存到项目的 `03-图片`，再等待确认。不要调用视频模型。
-3. **Gate 3：即梦素材包**：静帧确认后输出视频提示词。用户把 `03-图片` 里的四张 Codex 图片拖入即梦参考图区域，再复制视频提示词。
-
-## 视觉规则
-
-- 保持高级 editorial 半调纸拼贴：黑白 halftone 摄影剪贴、彩色卡纸、清晰裁切边、奶油色描边、纸张颗粒和柔和阴影。
-- 默认中文、9:16、约 5 秒、无对白、无配乐。
-- 画面整体铺满，不制造四周大面积空白；主要主体、关键文字和动作关系放在中部核心区域。
-- 顶部是新闻标题安全区：允许有背景、纸张和次要装饰，但关键对象、关键文字和冲突结果不能只放在那里。
-- 边缘可有次要元素，不能让画面空，也不能抢走中部语义。
-- 不要英文乱码、无关文字、logo、水印、UI、字幕段落或四格分镜。
-
-## 四张图的拆法
-
-四张图根据口播实际语义设计，不机械套模板，默认承担：
-
-1. **建立场景**：政策、平台、机构、地点或主体环境。
-2. **关键对象**：票、文件、商品、人物、标识等核心对象，必要中文标签要清楚。
-3. **动作关系**：对象进入、推动、连接、压入或影响场景。
-4. **结果冲突**：拒绝、打叉、限制、变化或最终结论。
-
-实际执行补充：
-
-- 先理解目标口播和上下文，再按它的语义侧重点安排四张画面。逐张决定主要表达、核心对象、物件关系、构图与必要标签；不同图可以呈现场景、对象特写、单项结果或综合结论。
-- 四张共用设计语言，各自是完整画面。不要先构造一张包含全部对象的完成图，再拆成空槽、加卡片、加连线、降刻度四个状态。
-- 统一半调、纸张、描边、阴影与配色方向，不锁定四张图的同一组物件、同一位置、大小和镜头构图。可依语义延续必要物件，但不强制所有物件跨图保留；也不强制每张换底色或为了变化而换场景。
-- 四种角色是默认拆分角度，不是四个时间状态。旧抗性淀粉第三张直接呈现肝脏下降数据，外卖第二、第三张表现不同主体的并列权利，都不应硬套为同一个物理装置的累计动作。
-- Gate 1 显示四张各自的主画面与顺序，并说明口播含义、情绪、关键物件、布局和配色。此处停下等确认，不生成图片。全文只用于理解目标句。
-- 保留口播的否定、条件和数量归属。第四图的最终状态以口播和确认方案为准；文件名“结果冲突”不要求每个题材都出现叉号或拒绝。
-
-## 输出目录
+全程只有四步，一次跑完，不停下确认：
 
 ```text
-YYYY-MM-DD-主题/
-├── 00-使用说明.txt
-├── 01-隐喻方案-待确认.txt
-├── 02-四张图片提示词/
-│   ├── 01-建立场景.txt
-│   ├── 02-关键对象.txt
-│   ├── 03-动作关系.txt
-│   └── 04-结果冲突.txt
-├── 03-图片/
-├── 04-即梦视频提示词.txt
-├── 05-剪映使用说明.txt
-└── visual-spec.json
+① 写 image-plan.json  →  ② run.py start  →  ③ 同一批发出四个 image_gen  →  ④ run.py finish
 ```
 
-`03-图片` 保存 Codex 生图生成的四张最终图片。按编号将它们拖进即梦视频的参考图区域；即梦只负责根据图片和视频提示词生成动画。
+`<本skill目录>` 指本 SKILL.md 所在目录。Windows PowerShell 中先设 `$env:PYTHONUTF8='1'`。每次只处理一段口播；一次给了多段独立新闻时只做第一段，并告诉用户其余分别调用。
 
-## Codex 生图规则
+## ① 写 image-plan.json（一次写对）
 
-Gate 1 通过后，对四个图片提示词分别调用内置 `image_gen`，不要使用 Gemini、外部图片 API 或 CLI fallback。历史中的“Gate 2 通过后再生图”是阶段措辞错误，实际顺序始终是方案确认后生图，图片确认后进入 Gate 3。
+在任务目录写 `image-plan.json`，格式是原项目 schema 3（详见 [references/image-plan.md](references/image-plan.md)）。直接按下面的骨架填写，第一次就能通过校验：
 
-### 提示词的形成方式
-
-1. 根据已确认的四张画面，先写本条口播共用的风格与构图边界，再分别写每张图的主要内容。实际案例使用英文图像描述，中文标签逐字写明，使用 `Use case: ads-marketing`（按题材补充说明）及 9:16 新闻 B-roll 的用途。
-2. 共用内容包括纸拼贴媒介、黑白半调摄影剪贴、卡纸点色、奶油描边、纸纹与阴影、整幅铺满、中部重要内容、顶部次要内容和禁用项。它不包含锁定四张图坐标的固定场景图。
-3. 每张的内容描述写清本图主要对象、作用或结果、大小关系、环境与中文标签。主题变化时重新设计这些内容；不把一条已通过的 prompt 缩成“高级拼贴”等几个风格词，也不把旧题材换几个名词继续用。
-4. 旧案例采用“本次共用风格描述 + 本图独立内容”的组织方式；这不要求未来所有 prompt 字句完全相同，也不要求四张共享具体布局。不要附加 `Fixed composition for all four stills`、`add only`、`same board`、`no major relocation` 等跨图锁定要求。
-5. 图片提示词直接交给 Codex。脚本写出的中文草稿不等于实际调用文本，必须用实际完整调用 prompt 保存到 `02-四张图片提示词` 的对应文件，不能只保存一句摘要。工具返回的 revisedPrompt 若不同，单独标明；用户要求单图修改时只处理对应图并同步文本。
-
-### 生图调用方式
-
-旧四图实际调用是四次互不依赖的新图生成：
-
-```javascript
-const results = await Promise.all(
-  prompts.map(prompt => tools.image_gen__imagegen({
-    prompt,
-    transparent_background: false
-  }))
-);
+```json
+{
+  "schema_version": 3,
+  "template_version": "3",
+  "speech": "完整口播原文",
+  "title": "简短项目名",
+  "duration_seconds": 6,
+  "scene": "共用场景摘要",
+  "objects": "关键对象摘要",
+  "action": "动作关系摘要",
+  "result": "最终结果摘要",
+  "palette": "配色摘要",
+  "frames": [
+    {"number": 1, "role": "建立场景", "prompt": "…"},
+    {"number": 2, "role": "关键对象", "prompt": "…"},
+    {"number": 3, "role": "动作关系", "prompt": "…"},
+    {"number": 4, "role": "结果冲突", "prompt": "…"}
+  ]
+}
 ```
 
-初次生成四图时，四个 prompt 均提前准备完整；不传 `referenced_image_paths`，也不传 `num_last_images_to_include`。不将第 1 张传给第 2 张再传给第 3、4 张。即使工具需要顺序执行，也保持四次独立。用户明确要求修改某张图时，再按该张修改要求处理，不扩展成整组编辑链。
+JSON 注意：字符串里的换行写成 `\n`，英文双引号写成 `\"`（中文标签用中文引号 “…”，不用转义），最后一项后面不加逗号。
 
-每张图都要实际查看并检查：竖向 9:16 意图、画面整体铺满、中部核心关系清晰、顶部只有次要内容、必要中文标签可读、没有水印或乱码；核对本图是否完成其独立的语义任务。原生成尺寸若只是接近 9:16，应报告实际尺寸，不冒称精确 1080×1920。
+### 视频参数（原项目规则，原样进入 video_prompt）
 
-按对应调用结果把原图复制到项目 `03-图片/01-建立场景.png` 至 `04-结果冲突.png`。不要只凭文件名、数量或“质感一致”判定完成。展示四张图等待用户的 Gate 2 确认；未通过的图按修改意见重做。
+- `speech`：完整口播原文。`duration_seconds`：有限正数，原项目默认 5，样例用 5 或 6。
+- `scene` / `objects` / `action` / `result`：整组画面共用的场景、关键对象、动作关系、最终结果摘要，分别对应第 1–4 张图。
+- `palette`：配色摘要，会接在“色彩使用”之后。
+- 都写成单行短语，不在末尾加句号，不写动画指令，不写占位符（`TODO`、`待填写`、`<…>`、`{{…}}` 会被拒绝）。
 
+它们被逐字填进原模板：`约 {duration} 秒…对应口播：{speech}…视觉隐喻：{scene}；关键对象：{objects}；动作关系：{action}；最终结果：{result}。…色彩使用{palette}。`
 
-## 本地半自动脚本
+### 每条 frames.prompt 的骨架
 
-恢复旧聊天实际调用的 `scripts/make_package.py`，使用系统 Python。脚本内容直接从当时的创建及补丁记录还原。它不调用 AI、不理解口播，只接收模型已经设计且用户确认的 scene、objects、action、result、palette，建立原有文件夹、元数据和草稿。
-
-Gate 1 通过后运行，参数来自本次确认方案：
+尖括号部分换成本图内容（写完后不能留下尖括号），其余句子保留，原项目要求的固定词都已包含在内：
 
 ```text
-python <本Skill目录>/scripts/make_package.py
-  --speech <目标口播> --title <主题>
-  --scene <确认场景> --objects <确认对象>
-  --action <确认关系> --result <确认结果> --palette <确认配色>
-  --output <用户指定或当前工作目录中的素材包目录> --date <本次日期>
+Use case: ads-marketing.
+Asset type: final still frame for a Chinese news explainer, 9:16 vertical image-to-video reference.
+This frame illustrates the voiceover words 「<本图对应的口播原文片段>」 (meaning only; never render these words as text).
+Create <景别> of <主体、动作和关系> in the middle core. <本图必须让观众看懂的一件事>.
+Premium editorial halftone paper collage, flat <底色> paper field filling the whole vertical frame, black-and-white halftone cut-outs, <点色> cardstock accents, cream keylines, subtle paper grain and soft shadows. Background scenery, props and collage layers continue naturally up to the top edge. Keep the <核心主体> in the middle core; a news headline will be overlaid near the top later, so keep faces, key labels and the result out of the top area, but do not leave it as an empty band.
+Use only the short Chinese label “<标签>” on <载体>, perfectly legible; <一句话说明在手机上一眼可读、又不喧宾夺主>.
+<本图的排除项>, no extra text, no English, no logo, no watermark, no UI, no subtitles, no 3D.
 ```
 
-然后为四张画面分别写实际生图 prompt，覆盖对应草稿并调用 image_gen。默认保留脚本的目录与 visual-spec.json；不再强制额外设计一个供四图共用的固定面板、统一坐标系统或单场景运动规格。
+填写规则：
 
-历史脚本会提前写出视频提示词草稿，并把默认时长写成 5 秒；有指定时长则同步本次元数据与说明。草稿存在不代表 Gate 3 已通过，图片确认后才整理并交付最终视频提示词。脚本里的叉号／封条等举例不能覆盖本次实际结果。
+- **按口播顺序一一对应**：口播原文按说话顺序切成四段，第 n 张对应第 n 段，四段连起来覆盖整段口播。口播说到什么，这张就画出对应的对象、行为或结果。
+- **每张至少一个中文关键标签**，放在本图最该被认出的对象上；标签字号用自己的话按构图描述，在手机上清楚可读即可，不套固定句子或数值。
+- **顶部**：画面一直铺到顶边，顶部照常有背景、场景和纸片；只是不要把人脸、关键标签和结果放在那里。不要写“留白”“空出顶部”“safe area with only secondary texture”这类会让顶部变成空白条的说法。
+- **四张可以大幅变化**：景别、构图、主体造型、底色、重点都可以不同（如全景 → 特写 → 中景 → 全景）。不要写 `same board`、`fixed composition for all four`、`no major relocation` 等跨图锁定语句。用户给了参考图时，学习其变化逻辑，见 `references/四图变化逻辑.md`。
+- 不把整句口播写成字幕，不写 `0–2 秒` 之类的视频分秒指令，四条正文互不相同。
 
-## Gate 3：确认图片后交付
+完整示例：`examples/票务平台退票/image-plan.json`。
 
-按实际四图及目标口播，整理 `04-即梦视频提示词.txt`，说明四张参考图按 1→2→3→4、用户指定时长、9:16、纸片进入／组装动作、保持纸拼贴质感与中文标签、无对白无配乐。用户只需拖四张图和复制这段文字，视频生成后自行放进剪映。
+## ② run.py start
 
-旧视频草稿有固定视角、逐件滑入、卡位、不整图淡入、不慢缩放的描述；它们是图片确认后的动画描述，不得提前拿来把四张静帧锁成同一个画面的微小变化。动画中的物件范围是四张参考图的并集，不是第一张图的物件集合。
+```bash
+python <本skill目录>/scripts/run.py start --plan <image-plan.json> --output <内部父目录> [--date YYYY-MM-DD]
+```
 
-不添加未经确认的即梦功能或视频 API；不把助手曾建议过某个选项说成用户已实际操作过。
+一次完成：原项目本地开关检查 → 原项目方案校验 + 口播顺序 / 标签检查（问题一次全部列出，未通过时不建任何目录）→ 原 `prepare_package.prepare()` 建包（含原 `load_image_prompts` 逐字核对）。成功时输出 JSON：`{"project": 内部项目目录, "prompts": [{number, path, prompt} × 4]}`。
 
+未通过：按列出的问题一次改好 `image-plan.json`，再运行一次。
 
-## 边界
+## ③ 同一批发出四个 image_gen
 
-不调用 Gemini、Veo、Google SDK 或任何视频生成 API；不自动上传即梦；不生成剪映工程文件。最终视频由用户在即梦生成，再放入剪映对应口播下方。
+用 start 输出的四条 `prompt`，在同一条回复里同时发出四次 `image_gen`（做法同 [references/parallel-generation.md](references/parallel-generation.md)）：
 
+- `transparent_background: false`；不传 `referenced_image_paths` 或 `num_last_images_to_include`；
+- 结果按输入顺序对应 01—04；只有网络或超时错误可对失败编号补试一次；
+- 不调用 `view_image`，不做视觉 QA，不因审美重做。
+
+仍有编号失败时，如实告诉用户缺哪张并停止，不要用占位图。
+
+## ④ run.py finish
+
+```bash
+python <本skill目录>/scripts/run.py finish --project <内部项目目录> --images <图1> <图2> <图3> <图4>
+```
+
+一次完成：四张图按编号复制进 `03-图片`（保留原字节与扩展名）→ 用 plan 里的参数调用原 `make_package.make()`（与 `make_package.py --video-only` 相同）写 `05-即梦视频提示词.txt` → 原 `export_delivery()` 原字节导出。输出交付目录路径。加 `--preview` 会在内部项目另写 `四图预览.jpg`（会多花几秒，默认不做）。
+
+交付目录（未压缩，`<内部父目录>/交付/<日期-项目名>/`，重名自动加 `_02`）严格只有：
+
+```text
+01-建立场景.png  02-关键对象.png  03-动作关系.png  04-结果冲突.png  05-即梦视频提示词.txt
+```
+
+最后告诉用户：交付目录路径、四张图各对应哪段口播、即梦用法（Seedance 2.0 全能参考，按 01→04 上传，粘贴 05 全文，9:16，时长按提示词里的秒数）。视频由用户自己生成，不要声称视频已生成。
+
+## 不可改动的部分
+
+`VENDORED.json` 列出的 58 个文件是原项目提交 `52351a7` 的逐字节副本（`make_package.py` 的 `video_prompt()`、`image_prompts.py` 的 `content_parameters()`、建包 / 校验 / 导出脚本、模板、本地开关、`references/image-plan.md`、原测试）。不得编辑，不得另写生成即梦提示词的代码，不得润色、扩写或重组 `05-即梦视频提示词.txt`。想改提示词内容，只能改 plan 里的视频参数再运行 `run.py finish`。
+
+`run.py` 只是把原函数按原顺序串起来，测试证明它的输出与原命令行流程逐字节相同。需要时也可以分步运行原命令行：`prepare_package.py` → `load_image_prompts.py` → `make_package.py --video-only` → `export_delivery.py`。
+
+## 事后重做某一张
+
+用户看完结果要求重做某张：只改 plan 中该帧 prompt，运行 `render_image_prompts.py --project <内部项目目录>`，单独重生该张，再运行 `run.py finish`（传入新图和其余三张原图），会生成新的编号交付目录。
+
+## 测试
+
+`python -m unittest discover -s <本skill目录>/tests`：原项目全部测试 + 迁移校验 + `run.py` 与原流程逐字节一致。
+
+## 旧版视频脚本
+
+`scripts/legacy/` 保留 gbro-collage-broll 原 Gemini / Veo 脚本，默认不调用；用户明确要求时才用，按量计费，需用户确认。
